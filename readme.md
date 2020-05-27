@@ -1,6 +1,7 @@
-# Jai module for generating CTags
+# Jai module for generating Ctags
 
-This module generates a ctags file for your project as part of normal compilation.
+This module generates a [ctags file](https://en.wikipedia.org/wiki/Ctags) for your project as part of normal compilation.
+This allows many editors to access definitions (functions, variables, structs, …) for quick navigation or lookup.
 
 ## Usage
 
@@ -47,4 +48,4 @@ your_build_function :: () {
 
 ## Options
 
-See the `CTags` struct for available options
+See the `CTags` struct for available options.
