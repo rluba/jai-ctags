@@ -150,6 +150,8 @@ reset :: (using ctags: *CTags) {
 
 // Example build function (but you probably want to roll your own)
 build_ctags :: (filename: string) {
+    #if #run (compiler_get_current_workspace() != 1) return;
+
     build_options := get_build_options();
     build_options.output_type = .NO_OUTPUT;
     set_build_options(build_options);
