@@ -100,7 +100,7 @@ process_message :: (using ctags: *CTags, message: *Compiler_Message) {
 			}
 		}
 	} else if message.kind == .COMPLETE {
-		print ("Generating ctags file '%'\n", output_filename);
+		print("Generating ctags file '%' (% symbols)\n", output_filename, symbols.count);
 
 		intro_sort(symbols, (a: *CTags.Symbol, b: *CTags.Symbol) -> int {
 			return compare(a.name, b.name);
