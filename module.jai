@@ -16,15 +16,15 @@ CTags :: struct {
 	// If you need to convert the declarations’ paths for some reason
 	transform_path: (ctags: *CTags, path: string) -> string;
 
-    Symbol :: struct {
-        name: string;
-        filename: string;
-        line: int;
-        column: int;
+	Symbol :: struct {
+		name: string;
+		filename: string;
+		line: int;
+		column: int;
 		kind: Kind;
 		arity: int;
 		scope_file: bool;
-    }
+	}
 
 	Kind :: enum {
 		UNSPECIFIED;
@@ -36,8 +36,8 @@ CTags :: struct {
 		VARIABLE;
 	}
 
-    symbols: [..] *Symbol;
-    strings: [..] string;  // Strings that need to be freed.
+	symbols: [..] *Symbol;
+	strings: [..] string;  // Strings that need to be freed.
 }
 
 // You have to call this in your message loop
@@ -150,19 +150,19 @@ reset :: (using ctags: *CTags) {
 
 // Example build function (but you probably want to roll your own)
 build_ctags :: (filename: string) {
-    #if #run (compiler_get_current_workspace() != 1) return;
+	#if #run (compiler_get_current_workspace() != 1) return;
 
-    build_options := get_build_options();
-    build_options.output_type = .NO_OUTPUT;
-    set_build_options(build_options);
+	build_options := get_build_options();
+	build_options.output_type = .NO_OUTPUT;
+	set_build_options(build_options);
 
-    w := compiler_create_workspace();
-    build_options.output_type = .EXECUTABLE;
-    set_build_options(build_options, w);
+	w := compiler_create_workspace();
+	build_options.output_type = .EXECUTABLE;
+	set_build_options(build_options, w);
 
 	compiler_begin_intercept(w);
 
-    add_build_file(filename, w);
+	add_build_file(filename, w);
 
 	ctags: CTags;
 	ctags.base_path = get_working_directory();
