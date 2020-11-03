@@ -5,14 +5,14 @@ This allows many editors to access definitions (functions, variables, structs, �
 
 ## Usage
 
-If you don’t yet set control compilation via workspaces, you can simply call the included `build_ctags(…)` function from your main file:
+If you don’t yet control compilation via workspaces, you can simply call the included `build_ctags(…)` function from your main file:
 
 ```jai
 #import "ctags";
-#run build_ctags(<name of your entry file>);
+#run build_ctags(#file);
 ```
 
-Otherwise, i.e., if you’ve already set up a custom workspace for compilation, you’ll have to init a `CTags` struct and call `process_message(…)` from your compiler message loop:
+Otherwise, i.e., if you’ve already set up a custom workspace for compilation, you have to init a `CTags` struct and call `process_message(…)` from your compiler message loop:
 
 ```jai
 #import "ctags";
