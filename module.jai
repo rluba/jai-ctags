@@ -41,9 +41,9 @@ CTags :: struct {
 }
 
 // You have to call this in your message loop
-process_message :: (using ctags: *CTags, message: *Compiler_Message) {
-	if message.kind == .CODE_TYPECHECKED {
-		tc := cast(*Compiler_Message_Code_Typechecked) message;
+process_message :: (using ctags: *CTags, message: *Message) {
+	if message.kind == .TYPECHECKED {
+		tc := cast(*Message_Typechecked) message;
 		for decl: tc.declarations {
 			if !decl.filename continue; // Skip language-defined declarations.
 
