@@ -40,92 +40,11 @@ CTags :: struct {
 	strings: [..] string;  // Strings that need to be freed.
 }
 
-add_symbol :: (symbols: *[..] *CTags.Symbol, filename: string, name: string, node: *Code_Node, kind: CTags.Kind, flags: type_of(Code_Declaration.flags), parent := "", arity := -1) {
-    symbol := New(CTags.Symbol);
-    symbol.name = name;
-    symbol.filename = filename;
-    symbol.line = node.l0;
-    symbol.column = node.c0;
-    symbol.kind = kind;
-    symbol.parent = parent;
-    symbol.arity = arity;
-    symbol.scope_file = cast(bool) flags & .SCOPE_FILE;
-    print("Adding symbol: %\n", <<symbol);
-
-    array_add(symbols, symbol);
-}
-
-add_declaration :: (using ctags: *CTags, decl: *Code_Declaration) {
-    if decl.flags & .IS_IMPORTED return; // Do not process duplicates for import links.
-
-    if !decl.name {
-        // @ToDo: What are declarations with no name?
-        print("Found declaration wihout a name: %\n", <<decl);
-        return;
-    }
-
-    filename := get_filename(decl);
-    if base_path && begins_with(filename, base_path) {
-        filename = slice(filename, base_path.count + 1, filename.count - base_path.count - 1);
-    }
-    if transform_path {
-        filename = transform_path(ctags, filename);
-    }
-
-    assert(path_extension(filename).count > 0, "No path extension: %", filename);
-
-    // print("Found declaration % in %\n", decl.name, filename);
-
-    if decl.expression {
-        if decl.expression.kind == {
-            case .STRUCT;
-                struct_decl := cast(*Code_Struct) decl.expression;
-                add_symbol(*symbols, filename, decl.name, decl, .STRUCT, decl.flags);
-                // print("Struct members:\n");
-                if struct_decl.block {
-                    for struct_decl.block.members {
-                        // print("Member: %\n", it.name);
-                        add_symbol(*symbols, filename, it.name, it, .STRUCT_MEMBER, decl.flags, decl.name);
-                    }
-                }
-                if struct_decl.constants_block {
-                    for struct_decl.constants_block.members {
-                        // print("Constant member: %\n", it.name);
-                        add_symbol(*symbols, filename, it.name, it, .STRUCT_MEMBER, decl.flags, decl.name);
-                    }
-                }
-            case .ENUM;
-                enum_decl := cast(*Code_Enum) decl.expression;
-                add_symbol(*symbols, filename, decl.name, decl, .ENUM, decl.flags);
-                // print("Enum members:\n");
-                if enum_decl.block {
-                    for enum_decl.block.members {
-                        // print("Member: %\n", it.name);
-                        add_symbol(*symbols, filename, it.name, it, .ENUM_MEMBER, decl.flags, decl.name);
-                    }
-                }
-            case .PROCEDURE_HEADER;
-                header_decl := cast(*Code_Procedure_Header) decl.expression;
-                add_symbol(*symbols, filename, decl.name, decl, .FUNCTION, decl.flags, "", header_decl.arguments.count);
-                for header_decl.arguments {
-                    add_symbol(*symbols, filename, it.name, it, .VARIABLE, it.flags, decl.name);
-                }
-            case .PROCEDURE_BODY;
-                body_decl := cast(*Code_Procedure_Body) decl.expression;
-            case;
-                // print("Found other kind: %\n", decl.expression.kind);
-                add_symbol(*symbols, filename, decl.name, decl, .UNSPECIFIED, decl.flags);
-        }
-    } else {
-        // print("No expression: %\n", <<decl);
-        add_symbol(*symbols, filename, decl.name, decl, .VARIABLE, decl.flags);
-    }
-}
-
 // You have to call this in your message loop
 process_message :: (using ctags: *CTags, message: *Message) {
 	if message.kind == .TYPECHECKED {
 		tc := cast(*Message_Typechecked) message;
+
 		for tc: tc.declarations {
             decl := tc.expression;
             add_declaration(ctags, decl);
@@ -242,6 +161,89 @@ build_ctags :: (filename: string) {
 }
 
 #scope_file
+
+add_symbol :: (symbols: *[..] *CTags.Symbol, filename: string, name: string, node: *Code_Node, kind: CTags.Kind, flags: type_of(Code_Declaration.flags), parent := "", arity := -1) {
+    symbol := New(CTags.Symbol);
+    symbol.name = name;
+    symbol.filename = filename;
+    symbol.line = node.l0;
+    symbol.column = node.c0;
+    symbol.kind = kind;
+    symbol.parent = parent;
+    symbol.arity = arity;
+    symbol.scope_file = cast(bool) flags & .SCOPE_FILE;
+    print("Adding symbol: %\n", <<symbol);
+
+    array_add(symbols, symbol);
+}
+
+add_declaration :: (using ctags: *CTags, decl: *Code_Declaration) {
+    if decl.flags & .IS_IMPORTED return; // Do not process duplicates for import links.
+
+    if !decl.name {
+        // @ToDo: What are declarations with no name?
+        print("Found declaration wihout a name: %\n", <<decl);
+        return;
+    }
+
+    filename := get_filename(decl);
+    if base_path && begins_with(filename, base_path) {
+        filename = slice(filename, base_path.count + 1, filename.count - base_path.count - 1);
+    }
+    if transform_path {
+        filename = transform_path(ctags, filename);
+    }
+
+    assert(path_extension(filename).count > 0, "No path extension: %", filename);
+
+    // print("Found declaration % in %\n", decl.name, filename);
+
+    if decl.expression {
+        if decl.expression.kind == {
+            case .STRUCT;
+                struct_decl := cast(*Code_Struct) decl.expression;
+                add_symbol(*symbols, filename, decl.name, decl, .STRUCT, decl.flags);
+                // print("Struct members:\n");
+                if struct_decl.block {
+                    for struct_decl.block.members {
+                        // print("Member: %\n", it.name);
+                        add_symbol(*symbols, filename, it.name, it, .STRUCT_MEMBER, decl.flags, decl.name);
+                    }
+                }
+                if struct_decl.constants_block {
+                    for struct_decl.constants_block.members {
+                        // print("Constant member: %\n", it.name);
+                        add_symbol(*symbols, filename, it.name, it, .STRUCT_MEMBER, decl.flags, decl.name);
+                    }
+                }
+            case .ENUM;
+                enum_decl := cast(*Code_Enum) decl.expression;
+                add_symbol(*symbols, filename, decl.name, decl, .ENUM, decl.flags);
+                // print("Enum members:\n");
+                if enum_decl.block {
+                    for enum_decl.block.members {
+                        // print("Member: %\n", it.name);
+                        add_symbol(*symbols, filename, it.name, it, .ENUM_MEMBER, decl.flags, decl.name);
+                    }
+                }
+            case .PROCEDURE_HEADER;
+                header_decl := cast(*Code_Procedure_Header) decl.expression;
+                add_symbol(*symbols, filename, decl.name, decl, .FUNCTION, decl.flags, "", header_decl.arguments.count);
+                for header_decl.arguments {
+                    add_symbol(*symbols, filename, it.name, it, .VARIABLE, it.flags, decl.name);
+                }
+            case .PROCEDURE_BODY;
+                body_decl := cast(*Code_Procedure_Body) decl.expression;
+            case;
+                // print("Found other kind: %\n", decl.expression.kind);
+                add_symbol(*symbols, filename, decl.name, decl, .UNSPECIFIED, decl.flags);
+        }
+    } else {
+        // print("No expression: %\n", <<decl);
+        add_symbol(*symbols, filename, decl.name, decl, .VARIABLE, decl.flags);
+    }
+}
+
 
 #import "Compiler";
 #import "String";
