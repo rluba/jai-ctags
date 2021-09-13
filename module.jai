@@ -172,7 +172,7 @@ add_symbol :: (symbols: *[..] *CTags.Symbol, filename: string, name: string, nod
     symbol.parent = parent;
     symbol.arity = arity;
     symbol.scope_file = cast(bool) flags & .SCOPE_FILE;
-    print("Adding symbol: %\n", <<symbol);
+    // print("Adding symbol: %\n", <<symbol);
 
     array_add(symbols, symbol);
 }
