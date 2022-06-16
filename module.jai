@@ -84,7 +84,6 @@ process_message :: (using ctags: *CTags, message: *Message) {
 
 		// print the symbols in ctags format:
 		builder: String_Builder;
-		defer free_buffers(*builder);
 		for symbols {
 			print_to_builder(*builder, "%\t%\t/\\%%%l\\%%%c/;\"", it.name, it.filename, it.line, it.column);
 			if #complete it.kind == {
