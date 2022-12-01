@@ -127,14 +127,15 @@ reset :: (using ctags: *CTags) {
 
 // Example build function (but you probably want to roll your own)
 build_ctags :: (filename: string) {
-	#if #run (compiler_get_current_workspace() != 1) return;
+	#if #run (get_current_workspace() != 2) return;
 
-	build_options := get_build_options();
-	build_options.output_type = .NO_OUTPUT;
-	set_build_options(build_options);
+    set_build_options_dc(.{do_output = false});
 
 	w := compiler_create_workspace();
+	build_options := get_build_options(w);
+    copy_commonly_propagated_fields(get_build_options(), *build_options);
 	build_options.output_type = .EXECUTABLE;
+    build_options.output_executable_name = basename(filename);
 	set_build_options(build_options, w);
 
 	compiler_begin_intercept(w);
