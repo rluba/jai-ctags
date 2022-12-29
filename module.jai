@@ -144,6 +144,10 @@ build_ctags :: (filename: string) {
 
 	ctags: CTags;
 	ctags.base_path = get_working_directory();
+
+    // Need forward slashes in order to compare with Code_Node filenames.
+    #if OS == .WINDOWS path_overwrite_separators(ctags.base_path, #char "/");
+
 	defer reset(*ctags);
 
 	while true {
